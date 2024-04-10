@@ -30,14 +30,13 @@ func SearchFile(filename string, match SearchParams, offset, limit int64) ([]*Se
 	defer f.Close()
 
 	s := stream.NewJsonStream(f)
-	v := createSearchParam(match)
 
 	rst := []*SearchFileInfo{}
 
 	var take int64
 
 	for {
-		offset, info, err := s.ScanNext(&scan.Index{}, v)
+		offset, info, err := s.ScanNext(&scan.Index{})
 		if err != nil {
 			if err == io.EOF {
 				break
@@ -63,29 +62,6 @@ func SearchFile(filename string, match SearchParams, offset, limit int64) ([]*Se
 
 	}
 	return rst, nil
-}
-
-func createSearchParam(match SearchParams) [][]string {
-	param := [][]string{}
-	cond := []string{}
-	if match.Name != "" {
-		cond = append(cond, match.Name)
-	}
-
-	if match.Ext != "" {
-		cond = append(cond, match.Ext)
-	}
-
-	if match.Tag != "" {
-		cond = append(cond, match.Tag)
-	}
-
-	if match.Path != "" {
-		cond = append(cond, match.Path)
-	}
-
-	param = append(param, cond)
-	return param
 }
 
 // 强匹配

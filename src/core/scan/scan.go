@@ -13,6 +13,7 @@ import (
 
 	"dxkite.cn/log"
 
+	"dxkite.cn/explore-me/src/core/binary"
 	"dxkite.cn/explore-me/src/core/storage"
 	"github.com/dlclark/regexp2"
 	"gopkg.in/yaml.v3"
@@ -21,7 +22,7 @@ import (
 const (
 	ExtIndex      = "exts.json"
 	TagIndex      = "tags.json"
-	MetaIndex     = "index.jsonl"
+	MetaIndex     = "index.dat"
 	RecentIndex   = "recent.jsonl"
 	LockFile      = "scan.lock"
 	MaxRecentSize = 100
@@ -158,15 +159,8 @@ func (s *Scanner) scanIndex(ctx context.Context, fs storage.FileSystem, name str
 
 	s.recent.PushItem(RecentFileItem{Index: v, ModTime: meta.ModTime})
 
-	if b, err := json.Marshal(v); err != nil {
+	if err := binary.Write(s.idx, v); err != nil {
 		return err
-	} else {
-		if _, err := s.idx.Write(b); err != nil {
-			return err
-		}
-		if _, err := s.idx.Write([]byte{'\n'}); err != nil {
-			return err
-		}
 	}
 	return nil
 }
